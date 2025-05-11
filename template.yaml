@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: SeedBomb Signup API — Handles new customer signups
+
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Deployment stage (e.g., dev, staging, prod)
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: nodejs18.x
+    MemorySize: 128
+    Tracing: Active
+
+Resources:
+  SignupApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "seedbomb-signup-api-${Stage}"
+      StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'POST,OPTIONS'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: "'*'"
+
+  HandleNewCustomerSignup:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "signup-handler-${Stage}"
+      CodeUri: src/
+      Handler: index.handler
+      Events:
+        SignupPost:
+          Type: Api
+          Properties:
+            Path: /signup
+            Method: POST
+            RestApiId: !Ref SignupApi
+      Environment:
+        Variables:
+          STAGE: !Ref Stage
+          CUSTOMERS_TABLE_NAME: !Ref CustomersTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CustomersTable
+
+  CustomersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "seedbomb-customers-${Stage}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: customer_id
+          AttributeType: S
+        - AttributeName: contact_email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: customer_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: contact-email-index
+          KeySchema:
+            - AttributeName: contact_email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+Outputs:
+  SignupApiUrl:
+    Description: "Signup API endpoint"
+    Value: !Sub "https://${SignupApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/signup"
+    Export:
+      Name: !Sub "SeedbombSignupApiUrl-${Stage}"
