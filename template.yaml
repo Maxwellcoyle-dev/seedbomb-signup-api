@@ -30,26 +30,10 @@ Resources:
         AllowHeaders: "'Content-Type'"
         AllowOrigin: "'*'"
 
-  HandleNewCustomerSignup:
-    Type: AWS::Serverless::Function
+  SeedbombCustomerSignupEventBus:
+    Type: AWS::Events::EventBus
     Properties:
-      FunctionName: !Sub "signup-handler-${Stage}"
-      Handler: functions/handleSignup.handler
-      CodeUri: src/
-      Events:
-        SignupPost:
-          Type: Api
-          Properties:
-            Path: /signup
-            Method: POST
-            RestApiId: !Ref SignupApi
-      Environment:
-        Variables:
-          STAGE: !Ref Stage
-          CUSTOMERS_TABLE_NAME: !Ref CustomersTable
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref CustomersTable
+      Name: seedbomb-signup-bus
 
   CustomersTable:
     Type: AWS::DynamoDB::Table
@@ -72,9 +56,42 @@ Resources:
           Projection:
             ProjectionType: ALL
 
+  HandleNewCustomerSignup:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "signup-handler-${Stage}"
+      Handler: functions/handleSignup.handler
+      CodeUri: src/
+      Events:
+        SignupPost:
+          Type: Api
+          Properties:
+            Path: /signup
+            Method: POST
+            RestApiId: !Ref SignupApi
+      Environment:
+        Variables:
+          STAGE: !Ref Stage
+          CUSTOMERS_TABLE_NAME: !Ref CustomersTable
+          EVENT_BUS_NAME: !Ref SeedbombCustomerSignupEventBus
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CustomersTable
+        - Statement:
+            Effect: Allow
+            Action:
+              - events:PutEvents
+            Resource: !GetAtt SeedbombCustomerSignupEventBus.Arn
+
 Outputs:
   SignupApiUrl:
     Description: "Signup API endpoint"
     Value: !Sub "https://${SignupApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/signup"
     Export:
       Name: !Sub "SeedbombSignupApiUrl-${Stage}"
+
+  EventBusArn:
+    Description: "EventBridge bus ARN for CustomerSignupCompleted events"
+    Value: !GetAtt SeedbombCustomerSignupEventBus.Arn
+    Export:
+      Name: !Sub "SeedbombSignupBusArn-${Stage}"

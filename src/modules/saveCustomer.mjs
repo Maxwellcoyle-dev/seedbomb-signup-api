@@ -1,4 +1,4 @@
-import { generateCustomerId } from "./generateCustomerId.mjs";
+import { generateCustomerId } from "../utils/generateCustomerId.mjs";
 
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 
