@@ -34,8 +34,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "signup-handler-${Stage}"
+      Handler: functions/handleSignup.handler
       CodeUri: src/
-      Handler: index.handler
       Events:
         SignupPost:
           Type: Api
