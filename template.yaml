@@ -103,3 +103,9 @@ Outputs:
     Value: !GetAtt SeedbombCustomerSignupEventBus.Arn
     Export:
       Name: !Sub "SeedbombSignupBusArn-${Stage}"
+
+  CustomersTableName:
+    Description: "DynamoDB table for customer profiles"
+    Value: !Ref CustomersTable
+    Export:
+      Name: !Sub "SeedbombCustomersTable-${Stage}"

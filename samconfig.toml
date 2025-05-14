@@ -14,11 +14,11 @@ parallel = true
 lint = true
 
 [default.deploy.parameters]
+stack_name = "seedbomb-signup-dev"
+s3_prefix = "seedbomb-signup-dev"
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-stack_name = "seedbomb-signup-dev"
-s3_prefix = "seedbomb-signup-dev"
 region = "us-east-2"
 parameter_overrides = "Stage=\"dev\""
 image_repositories = []
@@ -34,3 +34,23 @@ warm_containers = "EAGER"
 
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
+
+[staging.deploy.parameters]
+stack_name = "seedbomb-signup-staging"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "seedbomb-signup-staging"
+region = "us-east-2"
+parameter_overrides = "Stage=\"staging\""
+image_repositories = []
+
+[prod.deploy.parameters]
+stack_name = "seedbomb-signup-prod"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "seedbomb-signup-prod"
+region = "us-east-2"
+parameter_overrides = "Stage=\"prod\""
+image_repositories = []
