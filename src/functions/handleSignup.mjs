@@ -29,7 +29,11 @@ export const handler = async (event) => {
 
     const tableName = process.env.CUSTOMERS_TABLE_NAME;
     if (!tableName) {
-      console.error("CUSTOMERS_TABLE_NAME is not defined in env vars");
+      console.error("❌ Server error", {
+        message: "Server misconfiguration. tableName not found.",
+        errors: [{ code: errorCodes.INTERNAL_SERVER_ERROR }],
+      });
+
       return response(500, {
         message: "Server misconfiguration. tableName not found.",
         errors: [{ code: errorCodes.INTERNAL_SERVER_ERROR }],
@@ -40,6 +44,11 @@ export const handler = async (event) => {
     // check for slug availability
     const available = await checkSlugAvailability(slug, tableName);
     if (!available) {
+      console.error("❌ Error saving customer", {
+        message: "Slug is already taken",
+        errors: [{ field: "slug", code: errorCodes.SLUG_NOT_UNIQUE }],
+      });
+
       return response(409, {
         message: "Slug is already taken",
         errors: [{ field: "slug", code: errorCodes.SLUG_NOT_UNIQUE }],
@@ -54,6 +63,13 @@ export const handler = async (event) => {
     });
 
     if (!saveResult.success) {
+      console.error("❌ Error saving customer", {
+        message: "Customer already exists",
+        errors: [
+          { field: "contact_email", code: errorCodes.CUSTOMER_ALREADY_EXISTS },
+        ],
+      });
+
       return response(409, {
         message: "Customer already exists",
         errors: [
