@@ -9,6 +9,16 @@ import { response } from "../utils/response.mjs";
 import { errors as errorCodes } from "../utils/errors.mjs";
 
 export const handler = async (event) => {
+  console.info("Incoming signup request", {
+    ip: event.requestContext?.identity?.sourceIp,
+    userAgent: event.headers?.["User-Agent"],
+    bodySummary: {
+      gym_name: body.gym_name,
+      slug: body.slug,
+      contact_email_domain: body.contact_email?.split("@")[1],
+    },
+  });
+
   try {
     const body = JSON.parse(event.body || "{}");
     const { valid, errors, normalized } = validateAndNormalize(body);
@@ -72,11 +82,20 @@ export const handler = async (event) => {
       console.error("❌ Event emission threw an unexpected error:", emitErr);
     }
 
+    console.info("✅ Signup completed", {
+      customer_id: saveResult.customer_id,
+      slug,
+    });
+
     return response(200, {
       message: "Signup successful",
       customer_id: saveResult.customer_id,
     });
   } catch (err) {
+    console.error("❌ Unexpected error during signup", {
+      error: err.message,
+      stack: err.stack,
+    });
     console.error("Error handling signup:", err);
     return response(400, {
       message: "Something went wrong",
