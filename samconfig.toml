@@ -22,6 +22,7 @@ resolve_s3 = true
 region = "us-east-2"
 parameter_overrides = "Stage=\"dev\""
 image_repositories = []
+no_fail_on_empty_changeset = true
 
 [default.package.parameters]
 resolve_s3 = true
@@ -44,6 +45,7 @@ s3_prefix = "seedbomb-signup-dev"
 region = "us-east-2"
 parameter_overrides = "Stage=\"dev\""
 image_repositories = []
+no_fail_on_empty_changeset = true
 
 [staging.deploy.parameters]
 stack_name = "seedbomb-signup-staging"
@@ -54,6 +56,7 @@ s3_prefix = "seedbomb-signup-staging"
 region = "us-east-2"
 parameter_overrides = "Stage=\"staging\""
 image_repositories = []
+no_fail_on_empty_changeset = true
 
 [prod.deploy.parameters]
 stack_name = "seedbomb-signup-prod"
@@ -64,3 +67,4 @@ s3_prefix = "seedbomb-signup-prod"
 region = "us-east-2"
 parameter_overrides = "Stage=\"prod\""
 image_repositories = []
+no_fail_on_empty_changeset = true
