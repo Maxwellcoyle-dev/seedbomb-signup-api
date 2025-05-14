@@ -45,6 +45,8 @@ Resources:
           AttributeType: S
         - AttributeName: contact_email
           AttributeType: S
+        - AttributeName: slug
+          AttributeType: S
       KeySchema:
         - AttributeName: customer_id
           KeyType: HASH
@@ -52,6 +54,12 @@ Resources:
         - IndexName: contact-email-index
           KeySchema:
             - AttributeName: contact_email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: slug-index
+          KeySchema:
+            - AttributeName: slug
               KeyType: HASH
           Projection:
             ProjectionType: ALL

@@ -1,13 +1,24 @@
+import { slugify } from "../utils/slugify.mjs";
+import { errors as errorCodes } from "../utils/errors.mjs";
+
 export function validateAndNormalize(input = {}) {
   const errors = [];
 
   const rawGymName = input.gym_name?.trim();
   const rawEmail = input.contact_email?.trim().toLowerCase();
   const rawTemplateId = input.template_id?.trim();
+  const rawSlug = input.slug?.trim().toLowerCase();
 
-  if (!rawGymName) errors.push("gym_name is required");
-  if (!rawEmail) errors.push("contact_email is required");
-  if (!rawTemplateId) errors.push("template_id is required");
+  if (!rawGymName)
+    errors.push({ field: "gym_name", code: errorCodes.MISSING_GYM_NAME });
+  if (!rawEmail)
+    errors.push({
+      field: "contact_email",
+      code: errorCodes.MISSING_CONTACT_EMAIL,
+    });
+  if (!rawTemplateId)
+    errors.push({ field: "template_id", code: errorCodes.MISSING_TEMPLATE_ID });
+  if (!rawSlug) errors.push({ field: "slug", code: errorCodes.MISSING_SLUG });
 
   if (errors.length > 0) {
     return { valid: false, errors };
@@ -19,15 +30,7 @@ export function validateAndNormalize(input = {}) {
       gym_name: rawGymName,
       contact_email: rawEmail,
       template_id: rawTemplateId,
-      slug: slugify(rawGymName),
+      slug: slugify(rawSlug), // clean up user-provided slug
     },
   };
-}
-
-function slugify(str) {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumerics with hyphen
-    .replace(/(^-|-$)+/g, ""); // Remove leading/trailing hyphens
 }
