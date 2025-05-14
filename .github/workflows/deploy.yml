@@ -39,4 +39,4 @@ jobs:
 
       - name: Deploy SAM stack
         run: |
-          sam deploy --config-env ${{ github.ref_name }}
+          sam deploy --config-env ${{ github.ref_name }} --no-fail-on-empty-changeset
