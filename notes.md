@@ -1,5 +1,5 @@
-
 # SAM DEPLOY with Param overrides
+
 ```
 sam deploy \
   --parameter-overrides Stage=dev \
@@ -8,11 +8,16 @@ sam deploy \
 ```
 
 # Local testing with events
+
 VALID SIGNUP
 sam local invoke HandleNewCustomerSignup \
-  --event events/valid-signup.json \
-  --env-vars env/dev-env.json
+ --event events/valid-signup.json \
+ --env-vars env/dev-env.json
 
+INVALID JSON
+sam local invoke HandleNewCustomerSignup \
+ --event events/invalid-json.json \
+ --env-vars env/dev-env.json
 
 INVALID JSON
 sam local invoke HandleNewCustomerSignup --event events/invalid-json.json

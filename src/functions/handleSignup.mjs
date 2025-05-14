@@ -9,18 +9,18 @@ import { response } from "../utils/response.mjs";
 import { errors as errorCodes } from "../utils/errors.mjs";
 
 export const handler = async (event) => {
-  console.info("Incoming signup request", {
-    ip: event.requestContext?.identity?.sourceIp,
-    userAgent: event.headers?.["User-Agent"],
-    bodySummary: {
-      gym_name: body.gym_name,
-      slug: body.slug,
-      contact_email_domain: body.contact_email?.split("@")[1],
-    },
-  });
-
   try {
     const body = JSON.parse(event.body || "{}");
+    console.info("Incoming signup request", {
+      ip: event.requestContext?.identity?.sourceIp,
+      userAgent: event.headers?.["User-Agent"],
+      bodySummary: {
+        gym_name: body.gym_name,
+        slug: body.slug,
+        contact_email_domain: body.contact_email?.split("@")[1],
+      },
+    });
+
     const { valid, errors, normalized } = validateAndNormalize(body);
 
     if (!valid) {
