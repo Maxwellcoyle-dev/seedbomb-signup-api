@@ -37,3 +37,9 @@ curl -X POST https://p77uhimcs3.execute-api.us-east-2.amazonaws.com/dev/signup \
     "slug": "iron-temple_02"
   }'
   ```
+
+
+  RUN UNIT TESTS LOCALLY
+  ```
+  npm test
+  sam 

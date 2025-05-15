@@ -1,17 +1,16 @@
 {
   "name": "seedbomb-signup-api",
   "version": "1.0.0",
-  "description": "This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.",
-  "main": "index.js",
+  "description": "Signup microservice for SeedBomb CRM",
+  "type": "module",
   "directories": {
-    "test": "tests"
+    "test": "test"
   },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest --watch"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Max Henderson",
   "devDependencies": {
     "vitest": "^3.1.3"
   },
