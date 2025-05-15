@@ -31,6 +31,7 @@ jobs:
   deploy:
     name: Deploy SAM Stack
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     needs: test # 🔐 Only runs if 'test' job succeeds
     environment: ${{ github.ref_name }}
     env:
