@@ -97,6 +97,37 @@ Resources:
               - xray:PutTelemetryRecords
             Resource: "*"
 
+  SignupWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Sub seedbomb-signup-acl-${Stage}
+      Scope: REGIONAL
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: SignupWebACL
+      Rules:
+        - Name: RateLimitPerIP
+          Priority: 1
+          Action:
+            Block: {}
+          Statement:
+            RateBasedStatement:
+              Limit: 100
+              AggregateKeyType: IP
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: RateLimitPerIP
+
+  WAFAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn: !Sub arn:aws:apigateway:${AWS::Region}::/restapis/${SignupApi}/stages/${Stage}
+      WebACLArn: !GetAtt SignupWebACL.Arn
+
 Outputs:
   SignupApiUrl:
     Description: "Signup API endpoint"

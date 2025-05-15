@@ -2,10 +2,9 @@ name: Test and Deploy SAM Stack
 
 on:
   push:
-    branches:
-      - dev
-      - staging
-      - main
+    branches: [dev, staging, main]
+  pull_request:
+    branches: [dev, staging, main]
 
 jobs:
   test:
@@ -32,6 +31,7 @@ jobs:
   deploy:
     name: Deploy SAM Stack
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     needs: test # 🔐 Only runs if 'test' job succeeds
     environment: ${{ github.ref_name }}
     env:
@@ -59,4 +59,4 @@ jobs:
         run: sam build
 
       - name: Deploy SAM stack
-        run: sam deploy --config-env ${{ github.ref_name }} --no-fail-on-empty-changeset --debug
+        run: sam deploy --config-env ${{ env.config_env }} --no-fail-on-empty-changeset --debug
