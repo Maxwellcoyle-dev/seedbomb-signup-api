@@ -11,6 +11,16 @@ import { errors as errorCodes } from "../utils/errors.mjs";
 export const handler = async (event) => {
   try {
     const body = JSON.parse(event.body || "{}");
+    console.info("Incoming signup request", {
+      ip: event.requestContext?.identity?.sourceIp,
+      userAgent: event.headers?.["User-Agent"],
+      bodySummary: {
+        gym_name: body.gym_name,
+        slug: body.slug,
+        contact_email_domain: body.contact_email?.split("@")[1],
+      },
+    });
+
     const { valid, errors, normalized } = validateAndNormalize(body);
 
     if (!valid) {
@@ -19,7 +29,11 @@ export const handler = async (event) => {
 
     const tableName = process.env.CUSTOMERS_TABLE_NAME;
     if (!tableName) {
-      console.error("CUSTOMERS_TABLE_NAME is not defined in env vars");
+      console.error("❌ Server error", {
+        message: "Server misconfiguration. tableName not found.",
+        errors: [{ code: errorCodes.INTERNAL_SERVER_ERROR }],
+      });
+
       return response(500, {
         message: "Server misconfiguration. tableName not found.",
         errors: [{ code: errorCodes.INTERNAL_SERVER_ERROR }],
@@ -30,6 +44,11 @@ export const handler = async (event) => {
     // check for slug availability
     const available = await checkSlugAvailability(slug, tableName);
     if (!available) {
+      console.error("❌ Error saving customer", {
+        message: "Slug is already taken",
+        errors: [{ field: "slug", code: errorCodes.SLUG_NOT_UNIQUE }],
+      });
+
       return response(409, {
         message: "Slug is already taken",
         errors: [{ field: "slug", code: errorCodes.SLUG_NOT_UNIQUE }],
@@ -44,6 +63,13 @@ export const handler = async (event) => {
     });
 
     if (!saveResult.success) {
+      console.error("❌ Error saving customer", {
+        message: "Customer already exists",
+        errors: [
+          { field: "contact_email", code: errorCodes.CUSTOMER_ALREADY_EXISTS },
+        ],
+      });
+
       return response(409, {
         message: "Customer already exists",
         errors: [
@@ -72,11 +98,20 @@ export const handler = async (event) => {
       console.error("❌ Event emission threw an unexpected error:", emitErr);
     }
 
+    console.info("✅ Signup completed", {
+      customer_id: saveResult.customer_id,
+      slug,
+    });
+
     return response(200, {
       message: "Signup successful",
       customer_id: saveResult.customer_id,
     });
   } catch (err) {
+    console.error("❌ Unexpected error during signup", {
+      error: err.message,
+      stack: err.stack,
+    });
     console.error("Error handling signup:", err);
     return response(400, {
       message: "Something went wrong",

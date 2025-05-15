@@ -33,7 +33,7 @@ Resources:
   SeedbombCustomerSignupEventBus:
     Type: AWS::Events::EventBus
     Properties:
-      Name: seedbomb-signup-bus
+      Name: !Sub "seedbomb-signup-bus-${Stage}"
 
   CustomersTable:
     Type: AWS::DynamoDB::Table
@@ -90,6 +90,12 @@ Resources:
             Action:
               - events:PutEvents
             Resource: !GetAtt SeedbombCustomerSignupEventBus.Arn
+        - Statement:
+            Effect: Allow
+            Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+            Resource: "*"
 
 Outputs:
   SignupApiUrl:
@@ -103,3 +109,9 @@ Outputs:
     Value: !GetAtt SeedbombCustomerSignupEventBus.Arn
     Export:
       Name: !Sub "SeedbombSignupBusArn-${Stage}"
+
+  CustomersTableName:
+    Description: "DynamoDB table for customer profiles"
+    Value: !Ref CustomersTable
+    Export:
+      Name: !Sub "SeedbombCustomersTable-${Stage}"

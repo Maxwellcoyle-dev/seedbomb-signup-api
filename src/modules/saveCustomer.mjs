@@ -2,14 +2,10 @@ import { generateCustomerId } from "../utils/generateCustomerId.mjs";
 
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 
-const dynamo = new DynamoDBClient({});
-
-export async function saveCustomerProfile({
-  gym_name,
-  slug,
-  contact_email,
-  tableName,
-}) {
+export async function saveCustomerProfile(
+  { gym_name, slug, contact_email, tableName },
+  client = new DynamoDBClient({})
+) {
   const customer_id = generateCustomerId({ email: contact_email, slug });
   const timestamp = new Date().toISOString();
 
@@ -29,7 +25,7 @@ export async function saveCustomerProfile({
   });
 
   try {
-    await dynamo.send(command);
+    await client.send(command);
     return { success: true, customer_id };
   } catch (err) {
     if (err.name === "ConditionalCheckFailedException") {

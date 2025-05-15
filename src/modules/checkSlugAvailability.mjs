@@ -1,9 +1,10 @@
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 
-const dynamo = new DynamoDBClient({});
-
-export async function checkSlugAvailability(slug, tableName) {
-  console.log("slug: ", slug);
+export async function checkSlugAvailability(
+  slug,
+  tableName,
+  client = new DynamoDBClient({})
+) {
   const command = new QueryCommand({
     TableName: tableName,
     IndexName: "slug-index",
@@ -15,6 +16,6 @@ export async function checkSlugAvailability(slug, tableName) {
     Limit: 1,
   });
 
-  const result = await dynamo.send(command);
+  const result = await client.send(command);
   return result.Count === 0;
 }
