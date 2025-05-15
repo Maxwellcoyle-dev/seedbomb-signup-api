@@ -3,9 +3,10 @@ import {
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
 
-const eventBridge = new EventBridgeClient({});
-
-export async function emitCustomerSignupCompleted({ customer_id, slug, plan }) {
+export async function emitCustomerSignupCompleted(
+  { customer_id, slug, plan },
+  client = new EventBridgeClient({})
+) {
   const eventBusName = process.env.EVENT_BUS_NAME;
 
   const detail = {
@@ -25,7 +26,7 @@ export async function emitCustomerSignupCompleted({ customer_id, slug, plan }) {
   const command = new PutEventsCommand({ Entries: [eventPayload] });
 
   try {
-    const result = await eventBridge.send(command);
+    const result = await client.send(command);
     const failed = result.FailedEntryCount || 0;
 
     if (failed > 0) {
