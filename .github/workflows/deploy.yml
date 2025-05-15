@@ -59,4 +59,4 @@ jobs:
         run: sam build
 
       - name: Deploy SAM stack
-        run: sam deploy --config-env ${{ github.ref_name }} --no-fail-on-empty-changeset --debug
+        run: sam deploy --config-env ${{ env.config_env }} --no-fail-on-empty-changeset --debug
