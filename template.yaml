@@ -33,7 +33,7 @@ Resources:
   SeedbombCustomerSignupEventBus:
     Type: AWS::Events::EventBus
     Properties:
-      Name: seedbomb-signup-bus
+      Name: !Sub "seedbomb-signup-bus-${Stage}"
 
   CustomersTable:
     Type: AWS::DynamoDB::Table
